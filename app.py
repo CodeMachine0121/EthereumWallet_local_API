@@ -1,4 +1,4 @@
-from flask import Flask,jsonify , request
+from flask import Flask,jsonify , request , make_response
 from Wallet import  *
 from paper import Epaper as ep
 
@@ -16,20 +16,21 @@ def newAccount():
     passwd =  request.values['data']
 
     if wt.newAccount(passwd):
-        return 'Successfully'
-    else:
-        return 'fail'
+        return make_response( jsonify({'address' : str(wt.PublicKey())}) , 200)
+    else: #401 Unauthorized
+        return make_response( jsonify({'error':'something wrong'}) , 401)
 
 @app.route('/privatekey')
 def PrivateKey():
     ep.privatekey(wt.Mnemonics())
 
-    return  wt.Mnemonics()
+    return  make_response( jsonify({'mnemonics' : wt.Mnemonics() }) , 200)
+    
 
 @app.route('/publickey')
 def Publickey():
     ep.publickey()
-    return wt.PublicKey()
+    return make_response( jsonify({'address' : str(wt.PublicKey())}) , 200)
 
 @app.route('/ethertxn',methods=['POST']) #to_Address ,value , nonce ,gasPrice,gas
 def Ethertxn():
@@ -37,6 +38,6 @@ def Ethertxn():
     print(data)
     tmp = mk.EtherTxn(data[0],int(data[1]), int(data[2]),int(data[3]),int(data[4]))
     tmp =  hex(int.from_bytes(tmp,byteorder='big'))
-    return str(tmp)
-
+    return make_response( jsonify({'txn' : str(tmp)}), 200)
+    
 app.run(host='127.0.0.1', port=5000,debug=True)
