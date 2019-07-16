@@ -310,6 +310,6 @@ class EPD:
         qr.make(fit=True)
         img = qr.make_image(fill_color="black", back_color="white")
         img = qr.make_image(image_factory=qrcode.image.pil.PilImage)
-        img = img.resize((120, 120),Image.ANTIALIAS) #resize image with high-quality
+        img = img.resize((170, 170),Image.ANTIALIAS) #resize image with high-quality
         return img
 ### END OF FILE ###
