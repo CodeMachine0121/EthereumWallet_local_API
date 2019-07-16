@@ -9,8 +9,8 @@ import json
 import qrcode
 import qrcode.image.pil
 from PIL import Image,ImageDraw,ImageFont
-
-
+from eth_utils import decode_hex
+from eth_keys import keys
 
 class wallet:
     def __init__(self):
@@ -21,11 +21,16 @@ class wallet:
         private_key = w3.eth.account.decrypt(encrypted_key,self.password())
         return w3.toHex(private_key)
 
-    def PublicKey(self):#公鑰
-        keyfile =open("./wallet/keystore/"+os.listdir("./wallet/keystore")[0])
-        encrypted_key = keyfile.read()
-        return  w3.toChecksumAddress(encrypted_key.split(',')[0].split(':')[1].strip('"'))
+    def PublicKey(self):
+        priv_bytes = decode_hex(self.PrivateKey())
+        priv_key = keys.PrivateKey(priv_bytes)
+        pub_key = priv_key.public_key
+        return pub_key
 
+    def Address(self):#位址
+        pub_key = self.PublicKey()
+        return pub_key.to_checksum_address()
+        
     def password(self): #取得使用的當時輸入的密碼
         try:
             fp = open("./wallet/password/passwd.txt",'r')
