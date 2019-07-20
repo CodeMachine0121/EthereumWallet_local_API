@@ -16,9 +16,8 @@ def publickey():
 
         epd = epd2in7.EPD()
         epd.init()
-        print("Clear...")
+
         publickey = epd.makeQR(wt.PublicKey())
-        epd.Clear(0xFF)
         
         print ("read bmp file on window")
         blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
@@ -47,9 +46,8 @@ def address():
 
         epd = epd2in7.EPD()
         epd.init()
-        print("Clear...")
         address = epd.makeQR(wt.Address())
-        epd.Clear(0xFF)
+        #epd.Clear(0xFF)
        
 
         print ("read bmp file on window")
@@ -76,11 +74,11 @@ def privatekey():
     try:
         epd = epd2in7.EPD()
         epd.init()
-        print("Clear...")
+        
         #獲得 助記碼的QR Code
         mnemonics = wt.Mnemonics()
 
-        epd.Clear(0xFF)
+      
         print ("read bmp file on window")
         blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
         #redimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
@@ -107,8 +105,7 @@ def wrong():
     try:
         epd = epd2in7.EPD()
         epd.init()
-        print("Clear...")
-        epd.Clear(0xFF)
+       
 
         print ("read bmp file on window")
         blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
