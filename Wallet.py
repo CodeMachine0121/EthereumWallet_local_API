@@ -73,7 +73,7 @@ class makeTxn:
         def EtherTxn(self,to_Address ,value , nonce ,gasPrice,gas):#乙太幣交易
                 wt = wallet()         
                 privateKey = wt.PrivateKey()
-                address = w3.toChecksumAddress(wt.PublicKey())
+                address = w3.toChecksumAddress(wt.Address())
                 to_Address = w3.toChecksumAddress(to_Address)
                 txn = {#gas * price + value really means MAXGas * price.
                  'from':address,
@@ -104,3 +104,4 @@ class makeTxn:
                 signed_txn =  w3.eth.account.signTransaction(txn2,private_key=privateKey)
                 tmp = signed_txn.rawTransaction
                 return tmp
+
