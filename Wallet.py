@@ -15,8 +15,9 @@ import hashlib
 
 
 class wallet:
+    
     def __init__(self):
-        pass
+        self.private = self.PrivateKey()
     def PrivateKey(self):#私鑰
         keyfile =open("./wallet/keystore/"+os.listdir("./wallet/keystore")[0])
         encrypted_key = keyfile.read()
@@ -24,7 +25,7 @@ class wallet:
         return w3.toHex(private_key)
 
     def PublicKey(self):
-        priv_bytes = decode_hex(self.PrivateKey())
+        priv_bytes = decode_hex(self.private)
         priv_key = keys.PrivateKey(priv_bytes)
         pub_key = priv_key.public_key
         return pub_key
@@ -55,13 +56,13 @@ class wallet:
         return True
     # user input their password
     def Mnemonics(self):#轉24助憶詞
-        data = binascii.unhexlify(self.PrivateKey().split('x')[1])
+        data = binascii.unhexlify(self.private.split('x')[1])
         m = Mnemonic("english")
         return m.to_mnemonic(data)
 
     #get private_hash
     def Get_priv_hash(self):
-        priv = self.PrivateKey()
+        priv = self.private
         hash = hashlib.sha256()
         hash.update(priv.encode('utf8'))
         return hash.hexdigest()
@@ -72,7 +73,7 @@ class makeTxn:
         from Wallet import wallet
         def EtherTxn(self,to_Address ,value , nonce ,gasPrice,gas):#乙太幣交易
                 wt = wallet()         
-                privateKey = wt.PrivateKey()
+                privateKey = wt.private
                 address = w3.toChecksumAddress(wt.Address())
                 to_Address = w3.toChecksumAddress(to_Address)
                 txn = {#gas * price + value really means MAXGas * price.
