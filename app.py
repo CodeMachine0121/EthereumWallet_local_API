@@ -20,18 +20,29 @@ def newAccount():
     else: #401 Unauthorized
         return make_response( jsonify({'error':'something wrong'}) , 401)
 
+
+@app.route('/showPrivatekey')
+def showPrivatekey():
+    ep.privatekey()
+    return make_response( jsonify({'response':"successful"} ) ,200)
 @app.route('/privatekey')
 def PrivateKey():
-    ep.privatekey(wt.Mnemonics())
     return  make_response( jsonify({'response' : wt.Mnemonics() }) , 200)
+
+@app.route('/showPublickey')
+def showPublickey():
+    ep.publickey()
+    return make_response( jsonify({'response':"successful"} ) ,200)
 @app.route('/publickey')
 def Publickey():
-    ep.publickey()
     return make_response( jsonify({'response': str(wt.PublicKey()) }),200)
 
+@app.route('/showAddress')
+def showAddress():
+    ep.address()
+    return make_response( jsonify({'response':"successful"} ) ,200)
 @app.route('/address')
 def Address():
-    ep.address()
     return make_response( jsonify({'response' : str(wt.Address())}) , 200)
 
 @app.route('/ethertxn',methods=['POST']) #to_Address ,value , nonce ,gasPrice,gas
