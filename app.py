@@ -49,7 +49,7 @@ def Address():
 def Ethertxn():
     data = request.values['data'].split(',')
     print(data)
-    tmp = mk.EtherTxn(data[0],int(data[1]), int(data[2]),int(data[3]),int(data[4]))
+    tmp = mk.EtherTxn(data[0],int(data[1]), int(data[2]*10**18),int(data[3]),int(data[4]))
     tmp =  hex(int.from_bytes(tmp,byteorder='big'))
     return make_response( jsonify({'response' : str(tmp)}), 200)
 
