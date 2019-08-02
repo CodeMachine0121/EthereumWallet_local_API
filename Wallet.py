@@ -76,6 +76,7 @@ class makeTxn:
                 privateKey = wt.private
                 address = w3.toChecksumAddress(wt.Address())
                 to_Address = w3.toChecksumAddress(to_Address)
+                value =int( value * 10**18) 
                 txn = {#gas * price + value really means MAXGas * price.
                  'from':address,
                  'to':to_Address,
