@@ -16,12 +16,23 @@ import hashlib
 
 class wallet:
     
+    # input password before start up the wallet 
+    password = 'mcuite'
+    private = ""
     def __init__(self):
-        self.private = self.PrivateKey()
-    def PrivateKey(self):#私鑰
+        try:
+            self.private = self.PrivateKey(self.password)
+        except:
+            while True:
+                a = self.newAccount(self.password)
+                if a == True:
+                    self.private = self.PrivateKey(self.password)
+                    break
+                    
+    def PrivateKey(self,password):#私鑰
         keyfile =open("./wallet/keystore/"+os.listdir("./wallet/keystore")[0])
         encrypted_key = keyfile.read()
-        private_key = w3.eth.account.decrypt(encrypted_key,self.password())
+        private_key = w3.eth.account.decrypt(encrypted_key,password)
         return w3.toHex(private_key)
 
     def PublicKey(self):
@@ -34,14 +45,7 @@ class wallet:
         pub_key = self.PublicKey()
         return pub_key.to_checksum_address()
         
-    def password(self): #取得使用的當時輸入的密碼
-        try:
-            fp = open("./wallet/password/passwd.txt",'r')
-            passwd = fp.read()
-            fp.close()
-            return passwd
-        except:
-            print("No accounts")
+    
 
     def newAccount(self,passwd):# 新增錢包 Only one times
         if not path.exists("./wallet/password"): #確認存放password的資料夾是否存在
