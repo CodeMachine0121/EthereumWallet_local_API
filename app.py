@@ -49,7 +49,8 @@ def Address():
 def Ethertxn():
     data = request.values['data'].split(',')
     print(data)
-    tmp = mk.EtherTxn(data[0],float(data[1]), int(data[2]),int(data[3]),int(data[4]))
+    nonce = int(data[2].split("\b")[0])
+    tmp = mk.EtherTxn(data[0],float(data[1]), nonce ,int(data[3]),int(data[4]))
     tmp =  hex(int.from_bytes(tmp,byteorder='big'))
     return make_response( jsonify({'response' : str(tmp)}), 200)
 
@@ -58,3 +59,4 @@ def Get_Priv_hash():
     priv_hash = wt.Get_priv_hash()
     return make_response(jsonify({'response':str(priv_hash)}) ,200)
 app.run(host='127.0.0.1', port=5000,debug=True)
+
