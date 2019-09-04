@@ -4,20 +4,20 @@ from PIL import Image,ImageDraw,ImageFont
 import traceback
 from Wallet import *
 
-wt= wallet()
 
-font = '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf'
+#font = '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf'
+font = '/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS_Bold.ttf'
 uppic = './paper/pics/up.bmp'
 nextpic = './paper/pics/next.bmp'
 wrongpic = './paper/pics/wrong.bmp'
 addresspic = './paper/pics/address.bmp'
-def publickey():
+def publickey(publickey):
     try:
 
         epd = epd2in7.EPD()
         epd.init()
         print("Clear...")
-        publickey = epd.makeQR(wt.PublicKey())
+        publickey = epd.makeQR(publickey)
         epd.Clear(0xFF)
         
         print ("read bmp file on window")
@@ -42,13 +42,13 @@ def publickey():
         print ('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
 
-def address():
+def address(address):
     try:
 
         epd = epd2in7.EPD()
         epd.init()
         print("Clear...")
-        address = epd.makeQR(wt.Address())
+        address = epd.makeQR(address)
 #        epd.Clear(0xFF)
        
 
@@ -72,13 +72,12 @@ def address():
     except :
         print ('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
-def privatekey():
+def privatekey(mnemonics):
     try:
         epd = epd2in7.EPD()
         epd.init()
         print("Clear...")
         #獲得 助記碼的QR Code
-        mnemonics = wt.Mnemonics()
 
         epd.Clear(0xFF)
         print ("read bmp file on window")
@@ -102,7 +101,27 @@ def privatekey():
     except :
         print ('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
+def setup():
+    try:
+        epd = epd2in7.EPD()
+        epd.init()
+        print("Clear...")
+        epd.Clear(0xFF)
+        print ("read bmp file on window")
+        blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
+        font24 = ImageFont.truetype(font, 24)
+        drawblack = ImageDraw.Draw(blackimage1)
+        
+        drawblack.text((80, 40), 'Setup', font = font24, fill = 0)
+        drawblack.text((50, 80), 'wallet via phone', font = font24, fill = 0)
+        
 
+        epd.display(epd.getbuffer(blackimage1))
+        epd.sleep()
+
+    except:
+        print('traceback.format_exc():\n%s' % traceback.format_exc())
+        exit()
 def wrong():
     try:
         epd = epd2in7.EPD()
@@ -130,4 +149,5 @@ def wrong():
     except:
         print('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
+
 
