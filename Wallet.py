@@ -7,57 +7,58 @@ import os
 from os import path
 import json
 import qrcode
-import qrcode.image.pil
+#import qrcode.image.pil
 from PIL import Image,ImageDraw,ImageFont
 from eth_utils import decode_hex
 from eth_keys import keys
 import hashlib
-
+from eth_account import Account
 
 class wallet:
-    
     # input password before start up the wallet 
-    password = 'mcuite'
     private = ""
-    def __init__(self):
+   #開機第一要做            
+    def __init__(self,password):#私鑰
+        self.password = password
+    
+    def PrivateKey(self,password):
+        keyfile = open("./wallet/keystore/"+os.listdir("./wallet/keystore")[0])
+        encrypted_key = eval(keyfile.read()) #Eval = stirng to dict
         try:
-            self.private = self.PrivateKey(self.password)
+            self.private = w3.eth.account.decrypt(encrypted_key,password)
         except:
-            while True:
-                a = self.newAccount(self.password)
-                if a == True:
-                    self.private = self.PrivateKey(self.password)
-                    break
-                    
-    def PrivateKey(self,password):#私鑰
-        keyfile =open("./wallet/keystore/"+os.listdir("./wallet/keystore")[0])
-        encrypted_key = keyfile.read()
-        private_key = w3.eth.account.decrypt(encrypted_key,password)
-        return w3.toHex(private_key)
-
-    def PublicKey(self):
-        priv_bytes = decode_hex(self.private)
-        priv_key = keys.PrivateKey(priv_bytes)
+            return False
+        self.private=w3.toHex(self.private)
+        
+        return True
+        
+    def PublicKey(self,privatekey):
+        private_key_Bytes = decode_hex(privatekey)
+        priv_key = keys.PrivateKey(private_key_Bytes)
         pub_key = priv_key.public_key
         return pub_key
 
-    def Address(self):#位址
-        pub_key = self.PublicKey()
+    def Address(self,publickey):#位址
+        pub_key = publickey
         return pub_key.to_checksum_address()
         
-    
 
     def newAccount(self,passwd):# 新增錢包 Only one times
-        if not path.exists("./wallet/password"): #確認存放password的資料夾是否存在
-            os.makedirs("./wallet/password")
-        if not path.exists("./wallet/password/passwd.txt"): #確認存放password的文件是否存在
-            os.mknod("./wallet/password/passwd.txt")
-        fp = open("./wallet/password/passwd.txt",'w') #開啟文建檔 存起來
-        fp.writelines(passwd)
+        Acc = Account.create(passwd)
+        # make keyfile
+        keyfile = str(w3.eth.account.privateKeyToAccount(Acc.privateKey).encrypt(passwd))
+        print("new keyfile :"+keyfile)
+        try:
+            os.mkdir("./wallet/keystore/")#創資料夾
+        except:
+            return False
+        os.mknod("./wallet/keystore/"+Acc.address)#創文件
+        fp = open("./wallet/keystore/"+Acc.address,'w')
+        fp.write(str(keyfile))
         fp.close()
-        subprocess.call(['sudo', 'geth', '--datadir', './wallet/' ,'account','new','--password','./wallet/password/passwd.txt'])
-
+        self.private = Acc.privateKey.hex()
         return True
+
     # user input their password
     def Mnemonics(self):#轉24助憶詞
         data = binascii.unhexlify(self.private.split('x')[1])
@@ -75,26 +76,42 @@ class wallet:
 class makeTxn:
         import json
         from Wallet import wallet
+        password = ''
+        wt = wallet('')
+        def __init__(self,password):
+            self.password=password
+            wt = wallet(self.password)
+        
         def EtherTxn(self,to_Address ,value , nonce ,gasPrice,gas):#乙太幣交易
-                wt = wallet()         
-                privateKey = wt.private
-                address = w3.toChecksumAddress(wt.Address())
-                to_Address = w3.toChecksumAddress(to_Address)
-                value =int( value * 10**18) 
-                txn = {#gas * price + value really means MAXGas * price.
-                 'from':address,
-                 'to':to_Address,
-                 'value':int(value),
-                 'gas':int(gas),
-                 'gasPrice':int(gasPrice),  # = gas*price+value
-                 'nonce':int(nonce),
-                }
-                # 簽名 送tmp回去給手機
-                signed_txn = w3.eth.account.signTransaction(txn,private_key=privateKey)
-                tmp  =signed_txn.rawTransaction
-                # 加密存下來
-                txhasg  = w3.toHex(w3.sha3(signed_txn.rawTransaction))
-                return tmp
+                if self.wt.PrivateKey(self.password):
+                    privateKey = self.wt.private
+                else:
+                    return 'Password error'
+                    
+                address = w3.toChecksumAddress(self.wt.Address(self.wt.PublicKey(self.wt.private)))
+                try:
+                    to_Address = w3.toChecksumAddress(to_Address)
+                except:
+                    return "Address error"
+                value =int( value * 10**18)
+                try: 
+                    txn = {#gas * price + value really means MAXGas * price.
+                    'from':address,
+                    'to':to_Address,
+                    'value':int(value),
+                    'gas':int(gas),
+                    'gasPrice':int(gasPrice),  # = gas*price+value
+                    'nonce':int(nonce),
+                    }
+                    # 簽名 送tmp回去給手機
+                    signed_txn = w3.eth.account.signTransaction(txn,private_key=privateKey)
+                    tmp  =signed_txn.rawTransaction
+                    print('type of tmp: ',type(tmp))
+                    # 加密存下來
+                    txhasg  = w3.toHex(w3.sha3(signed_txn.rawTransaction))
+                except:
+                    return "Value Error"
+                return tmp.hex()
 
         def Token_Txn(self,to_addr,value,nonce):#Token交易
                 ABI = json.loads('[{"constant":false,"inputs":[{"name":"spender","type":"address"},{"name":"tokens","type":"uint256"}],"name":"approve","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"buy","outputs":[],"payable":true,"stateMutability":"payable","type":"function"},{"constant":false,"inputs":[],"name":"delContract","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"price","type":"uint256"}],"name":"setPrice","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transfer","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"_from","type":"address"},{"name":"_to","type":"address"},{"name":"tokens","type":"uint256"}],"name":"transferFrom","outputs":[{"name":"success","type":"bool"}],"payable":false,"stateMutability":"nonpayable","type":"function"},{"constant":false,"inputs":[{"name":"amount","type":"uint256"}],"name":"withdraw","outputs":[],"payable":false,"stateMutability":"nonpayable","type":"function"},{"inputs":[],"payable":false,"stateMutability":"nonpayable","type":"constructor"},{"anonymous":false,"inputs":[{"indexed":true,"name":"from","type":"address"},{"indexed":true,"name":"to","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Transfer","type":"event"},{"anonymous":false,"inputs":[{"indexed":true,"name":"tokenOwner","type":"address"},{"indexed":true,"name":"spender","type":"address"},{"indexed":false,"name":"tokens","type":"uint256"}],"name":"Approval","type":"event"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"},{"name":"spender","type":"address"}],"name":"allowance","outputs":[{"name":"remaining","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"},{"name":"","type":"address"}],"name":"allowed","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"tokenOwner","type":"address"}],"name":"balanceOf","outputs":[{"name":"balance","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[{"name":"","type":"address"}],"name":"balances","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"buyPrice","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"decimals","outputs":[{"name":"","type":"uint8"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"name","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"owner","outputs":[{"name":"","type":"address"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"symbol","outputs":[{"name":"","type":"string"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"totalSupply","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"},{"constant":true,"inputs":[],"name":"weiToEther","outputs":[{"name":"","type":"uint256"}],"payable":false,"stateMutability":"view","type":"function"}]')
@@ -110,4 +127,6 @@ class makeTxn:
                 signed_txn =  w3.eth.account.signTransaction(txn2,private_key=privateKey)
                 tmp = signed_txn.rawTransaction
                 return tmp
+
+
 
