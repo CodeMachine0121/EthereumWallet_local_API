@@ -20,6 +20,7 @@ def login():
     if not path.exists('./wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
     if wt.PrivateKey(passwd):
+        ep.address(str(wt.Address(wt.PublicKey(wt.private))))
         return make_response( jsonify({'response' :'Login success'}))
     else:
         return make_response( jsonify({'response' :'Password error'}))
