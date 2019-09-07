@@ -65,9 +65,9 @@ class wallet:
         m = Mnemonic("english")
         return m.to_mnemonic(data)
 
-    #get private_hash
+    #get public key hash
     def Get_priv_hash(self):
-        priv = self.private
+        priv = str(self.PublicKey(self.private))
         hash = hashlib.sha256()
         hash.update(priv.encode('utf8'))
         return hash.hexdigest()
