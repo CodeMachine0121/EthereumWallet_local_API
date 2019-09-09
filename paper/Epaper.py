@@ -7,10 +7,10 @@ from Wallet import *
 
 #font = '/usr/share/fonts/truetype/freefont/FreeMonoBold.ttf'
 font = '/usr/share/fonts/truetype/msttcorefonts/Comic_Sans_MS_Bold.ttf'
-uppic = './paper/pics/up.bmp'
-nextpic = './paper/pics/next.bmp'
-wrongpic = './paper/pics/wrong.bmp'
-addresspic = './paper/pics/address.bmp'
+uppic = '/home/pi/EthereumWallet_local_API/paper/pics/up.bmp'
+nextpic = '/home/pi/EthereumWallet_local_API/paper/pics/next.bmp'
+wrongpic = '/home/pi/EthereumWallet_local_API/paper/pics/wrong.bmp'
+addresspic = '/home/pi/EthereumWallet_local_API/paper/pics/address.bmp'
 def publickey(publickey):
     try:
 
