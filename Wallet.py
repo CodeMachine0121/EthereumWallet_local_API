@@ -22,7 +22,7 @@ class wallet:
         self.password = password
     
     def PrivateKey(self,password):
-        keyfile = open("./wallet/keystore/"+os.listdir("./wallet/keystore")[0])
+        keyfile = open("/home/pi/EthereumWallet_local_API/wallet/keystore/"+os.listdir("/home/pi/EthereumWallet_local_API/wallet/keystore")[0])
         encrypted_key = eval(keyfile.read()) #Eval = stirng to dict
         try:
             self.private = w3.eth.account.decrypt(encrypted_key,password)
@@ -49,11 +49,11 @@ class wallet:
         keyfile = str(w3.eth.account.privateKeyToAccount(Acc.privateKey).encrypt(passwd))
         print("new keyfile :"+keyfile)
         try:
-            os.mkdir("./wallet/keystore/")#創資料夾
+            os.mkdir("/home/pi/EthereumWallet_local_API/wallet/keystore/")#創資料夾
         except:
             return False
-        os.mknod("./wallet/keystore/"+Acc.address)#創文件
-        fp = open("./wallet/keystore/"+Acc.address,'w')
+        os.mknod("/home/pi/EthereumWallet_local_API/wallet/keystore/"+Acc.address)#創文件
+        fp = open("/home/pi/EthereumWallet_local_API/wallet/keystore/"+Acc.address,'w')
         fp.write(str(keyfile))
         fp.close()
         self.private = Acc.privateKey.hex()
