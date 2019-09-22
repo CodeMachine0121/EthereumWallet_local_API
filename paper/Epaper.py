@@ -11,6 +11,7 @@ uppic = '/home/pi/EthereumWallet_local_API/paper/pics/up.bmp'
 nextpic = '/home/pi/EthereumWallet_local_API/paper/pics/next.bmp'
 wrongpic = '/home/pi/EthereumWallet_local_API/paper/pics/wrong.bmp'
 addresspic = '/home/pi/EthereumWallet_local_API/paper/pics/address.bmp'
+
 def publickey(publickey):
     try:
 
@@ -49,8 +50,6 @@ def address(address):
         epd.init()
         print("Clear...")
         address = epd.makeQR(address)
-#        epd.Clear(0xFF)
-       
 
         print ("read bmp file on window")
         blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
@@ -72,7 +71,7 @@ def address(address):
     except :
         print ('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
-def privatekey(mnemonics):
+def privatekey(mnemonics,password):
     try:
         epd = epd2in7.EPD()
         epd.init()
@@ -84,10 +83,10 @@ def privatekey(mnemonics):
         blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
         #redimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
         drawblack = ImageDraw.Draw(blackimage1)
-        font24 = ImageFont.truetype(font, 20)
-        drawblack.text((180, 40), 'Must', font = font24, fill = 0)
-        drawblack.text((180, 80), 'note', font = font24, fill = 0)
-        drawblack.text((180, 120), 'words', font = font24, fill = 0)
+        font24 = ImageFont.truetype(font, 15)
+        drawblack.text((170, 40), "<-Mnemonics:", font = font24, fill = 0)
+        drawblack.text((180, 80), 'password:', font = font24, fill = 0)
+        drawblack.text((180, 120), password, font = font24, fill = 0)
         
         newimage = epd.makeQR(mnemonics)
         blackimage1.paste(newimage, (0,0))
@@ -101,6 +100,25 @@ def privatekey(mnemonics):
     except :
         print ('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
+def boot():
+    try:
+        epd = epd2in7.EPD()
+        epd.init()
+        print("Clear...")
+        epd.Clear(0xFF)
+        print ("read bmp file on window")
+        blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
+        font24 = ImageFont.truetype(font, 15)
+        drawblack = ImageDraw.Draw(blackimage1)
+        
+        drawblack.text((30,70),'press key1 to show address',font = font24)        
+
+        epd.display(epd.getbuffer(blackimage1))
+        epd.sleep()
+
+    except:
+        print('traceback.format_exc():\n%s' % traceback.format_exc())
+        exit() 
 def setup():
     try:
         epd = epd2in7.EPD()
@@ -109,12 +127,13 @@ def setup():
         epd.Clear(0xFF)
         print ("read bmp file on window")
         blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
-        font24 = ImageFont.truetype(font, 24)
+        font24 = ImageFont.truetype(font, 15)
         drawblack = ImageDraw.Draw(blackimage1)
         
-        drawblack.text((80, 40), 'Setup', font = font24, fill = 0)
-        drawblack.text((50, 80), 'wallet via phone', font = font24, fill = 0)
-        
+        drawblack.text((30, 70), 'There has no any accounts', font = font24, fill = 0)
+
+        font24 = ImageFont.truetype(font, 10)
+        drawblack.text((50,100),'press key1 to new an address',font = font24)        
 
         epd.display(epd.getbuffer(blackimage1))
         epd.sleep()
@@ -149,5 +168,25 @@ def wrong():
     except:
         print('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
+
+def setBalance(bal):
+    try:
+        epd = epd2in7.EPD()
+        epd.init()
+        print("Clear...")
+        epd.Clear(0xFF)
+        print ("read bmp file on window")
+        blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
+        font24 = ImageFont.truetype(font, 25)
+        drawblack = ImageDraw.Draw(blackimage1)
+        print('send balance: ',bal)
+        drawblack.text((30, 60),'send balance: '+bal, font = font24, fill = 0)
+        epd.display(epd.getbuffer(blackimage1))
+        epd.sleep()
+    except:
+        print('traceback.format_exc():\n%s'%(traceback.format_exc()))
+        
+
+
 
 
