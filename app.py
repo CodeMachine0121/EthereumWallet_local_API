@@ -11,6 +11,8 @@ global wt,mk
 
 app = Flask(__name__)
 wt = wallet("")
+
+
 status =  False
 
 
@@ -20,45 +22,47 @@ def login():
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
     if wt.PrivateKey(passwd):
-        ep.address(str(wt.Address(wt.PublicKey(wt.private))))
+        status = True
         return make_response( jsonify({'response' :'Login success'}))
     else:
         return make_response( jsonify({'response' :'Password error'}))
 
-
-@app.route('/signup',methods=['POST'])
+#按鈕 key1 觸控############
+@app.route('/signup')
 def signup():
-    passwd = request.values['data'].split(',')[1]
     result = "no reaponse"
-    if wt.newAccount(passwd):
-        ep.privatekey(wt.Mnemonics())
+    if wt.newAccount():
+        ep.privatekey(wt.Mnemonics(),wt.password)
         result = "Sign up Success"
-    else:
-        result = "Sign up failed(Maybe Address exist)"
-        ep.wrong()
     return make_response(jsonify({'response':result}),200)
-
+###################
 
 @app.route('/showPrivatekey')
 def showPrivatekey():
+
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
+    
     ep.privatekey(wt.Mnemonics())
     return make_response( jsonify({'response':"successful"} ) ,200)
 @app.route('/privatekey')
 def PrivateKey():
+    
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
     return  make_response( jsonify({'response' : wt.Mnemonics() }) , 200)
 
 @app.route('/showPublickey')
 def showPublickey():
+ 
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
     ep.publickey(str(wt.PublicKey(wt.private) ))
     return make_response( jsonify({'response':"successful"} ) ,200)
+
 @app.route('/publickey')
 def Publickey():
+ 
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
     return make_response( jsonify({'response': str(wt.PublicKey(wt.private)) }),200)
@@ -67,17 +71,25 @@ def Publickey():
 def showAddress():
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
-    ep.address( str(wt.Address(wt.PublicKey(wt.private))) )
+    ep.address( str(wt.Address()))
     return make_response( jsonify({'response':"successful"} ) ,200)
+
 @app.route('/address')
 def Address():
+    
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
-    return make_response( jsonify({'response' : str(wt.Address(wt.PublicKey(wt.private)))}) , 200)
+    return make_response( jsonify({'response' : str(wt.Address()) }) , 200)
 
+@app.route('/setBalance',methods=['POST'])
+def setBalance():
+    bal = request.values['data'].split(',')[1]
+    ep.setBalance(bal)
+    return make_response(jsonify({'response':'successful'}))
 
 @app.route('/ethertxn',methods=['POST']) #password,to_Address ,value , nonce ,gasPrice,gas
 def Ethertxn():
+    
     if not path.exists('/home/pi/EthereumWallet_local_API/wallet/keystore'):
         return make_response( jsonify({'response' :"Address not exists"}))
     
@@ -105,7 +117,10 @@ def Get_Priv_hash():
     return make_response(jsonify({'response':str(priv_hash)}) ,200)
 
 
-app.run(host='127.0.0.1', port=6000)
+app.run(host='127.0.0.1', port=6000,debug=True)
+
+
+
 
 
 
