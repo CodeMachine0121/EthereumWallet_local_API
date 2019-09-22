@@ -13,19 +13,23 @@ from eth_utils import decode_hex
 from eth_keys import keys
 import hashlib
 from eth_account import Account
-
+import random 
+import string 
 class wallet:
     # input password before start up the wallet 
     private = ""
+    password = ''
    #開機第一要做            
     def __init__(self,password):#私鑰
         self.password = password
     
+
     def PrivateKey(self,password):
+        self.password = password
         keyfile = open("/home/pi/EthereumWallet_local_API/wallet/keystore/"+os.listdir("/home/pi/EthereumWallet_local_API/wallet/keystore")[0])
         encrypted_key = eval(keyfile.read()) #Eval = stirng to dict
         try:
-            self.private = w3.eth.account.decrypt(encrypted_key,password)
+            self.private = w3.eth.account.decrypt(encrypted_key,self.password)
         except:
             return False
         self.private=w3.toHex(self.private)
@@ -38,20 +42,27 @@ class wallet:
         pub_key = priv_key.public_key
         return pub_key
 
-    def Address(self,publickey):#位址
-        pub_key = publickey
-        return pub_key.to_checksum_address()
+    def Address(self):#位址
+        return os.listdir("/home/pi/EthereumWallet_local_API/wallet/keystore")[0]
         
+    #隨機生成 長度為8的亂數字串 作為Address 密碼
+    def RandomString(self):
+        salt = ''.join(random.sample(string.ascii_letters+string.digits, 8))
+        return salt
 
-    def newAccount(self,passwd):# 新增錢包 Only one times
-        Acc = Account.create(passwd)
-        # make keyfile
-        keyfile = str(w3.eth.account.privateKeyToAccount(Acc.privateKey).encrypt(passwd))
-        print("new keyfile :"+keyfile)
+    def newAccount(self):# 新增錢包 Only one times
+        
         try:
             os.mkdir("/home/pi/EthereumWallet_local_API/wallet/keystore/")#創資料夾
         except:
             return False
+        
+        self.password = self.RandomString() #產生密碼
+        Acc = Account.create(self.password)
+        # make keyfile
+        keyfile = str(w3.eth.account.privateKeyToAccount(Acc.privateKey).encrypt(self.password))
+        print("new keyfile :"+keyfile)
+        
         os.mknod("/home/pi/EthereumWallet_local_API/wallet/keystore/"+Acc.address)#創文件
         fp = open("/home/pi/EthereumWallet_local_API/wallet/keystore/"+Acc.address,'w')
         fp.write(str(keyfile))
@@ -88,7 +99,7 @@ class makeTxn:
                 else:
                     return 'Password error'
                     
-                address = w3.toChecksumAddress(self.wt.Address(self.wt.PublicKey(self.wt.private)))
+                address = w3.toChecksumAddress(self.wt.Address())
                 try:
                     to_Address = w3.toChecksumAddress(to_Address)
                 except:
@@ -127,6 +138,9 @@ class makeTxn:
                 signed_txn =  w3.eth.account.signTransaction(txn2,private_key=privateKey)
                 tmp = signed_txn.rawTransaction
                 return tmp
+
+
+
 
 
 
