@@ -84,7 +84,7 @@ def Address():
 @app.route('/setBalance',methods=['POST'])
 def setBalance():
     bal = request.values['data'].split(',')[1]
-    ep.setBalance(bal)
+    ep.setBalance("%.2f" %(float(bal)))
     return make_response(jsonify({'response':'successful'}))
 
 @app.route('/yourBalance',methods=['POST'])
