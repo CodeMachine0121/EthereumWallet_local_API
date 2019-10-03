@@ -87,6 +87,12 @@ def setBalance():
     ep.setBalance(bal)
     return make_response(jsonify({'response':'successful'}))
 
+@app.route('/yourBalance',methods=['POST'])
+def yourBalance():
+    bal = request.values['data'].split(',')[1].strip('\b').strip(" ")
+    ep.yourBalance("%.2f" %(float(bal)))
+    return make_response(jsonify({'response':'successful'}))
+
 @app.route('/ethertxn',methods=['POST']) #password,to_Address ,value , nonce ,gasPrice,gas
 def Ethertxn():
     
@@ -118,6 +124,7 @@ def Get_Priv_hash():
 
 
 app.run(host='127.0.0.1', port=6000,debug=True)
+
 
 
 
