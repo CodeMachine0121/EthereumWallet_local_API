@@ -169,6 +169,7 @@ def wrong():
         print('traceback.format_exc():\n%s' % traceback.format_exc())
         exit()
 
+
 def setBalance(bal):
     try:
         epd = epd2in7.EPD()
@@ -186,6 +187,24 @@ def setBalance(bal):
     except:
         print('traceback.format_exc():\n%s'%(traceback.format_exc()))
         
+def yourBalance(bal):
+    try:
+        epd = epd2in7.EPD()
+        epd.init()
+        print("Clear...")
+        epd.Clear(0xFF)
+        print ("read bmp file on window")
+        blackimage1 = Image.new('1', (epd2in7.EPD_HEIGHT, epd2in7.EPD_WIDTH), 255) # 298*126
+        font24 = ImageFont.truetype(font, 25)
+        drawblack = ImageDraw.Draw(blackimage1)
+        print('your balance: ',bal)
+        drawblack.text((50, 60),'your balance: ', font = font24, fill = 0)
+        drawblack.text((100, 90),bal, font = font24, fill = 0)
+        
+        epd.display(epd.getbuffer(blackimage1))
+        epd.sleep()
+    except:
+        print('traceback.format_exc():\n%s'%(traceback.format_exc()))
 
 
 
